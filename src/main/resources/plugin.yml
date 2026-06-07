@@ -1,0 +1,10 @@
+name: Vanilla Hammers
+description: $description
+version: '${version}'
+
+main: net.paulem.vanillahammers.VanillaHammers
+api-version: '26.1.2'
+load: POSTWORLD
+
+authors: [ Paulem ]
+website: paulem.net
