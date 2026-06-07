@@ -1,4 +1,4 @@
-name: Vanilla Hammers
+name: Vanilla-Hammers
 description: $description
 version: '${version}'
 
@@ -8,3 +8,5 @@ load: POSTWORLD
 
 authors: [ Paulem ]
 website: paulem.net
+
+folia-supported: true

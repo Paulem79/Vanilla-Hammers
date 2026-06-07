@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version libs.versions.kotlin.get()
+    java
     alias(libs.plugins.shadow)
     alias(libs.plugins.run.paper)
 }
@@ -10,12 +10,13 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.glowingentities)
+
     compileOnly(libs.paper.api)
-    implementation(libs.kotlin.stdlib)
 }
 
-kotlin {
-    jvmToolchain(25)
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 }
 
 tasks {
@@ -25,7 +26,7 @@ tasks {
 
     runServer {
         minecraftVersion(libs.versions.minecraft.get())
-        jvmArgs("-Xms2G", "-Xmx2G", "-Dcom.mojang.eula.agree=true")
+        jvmArgs("-Xms1G", "-Xmx1G", "-Dcom.mojang.eula.agree=true", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005")
     }
 
     processResources {
