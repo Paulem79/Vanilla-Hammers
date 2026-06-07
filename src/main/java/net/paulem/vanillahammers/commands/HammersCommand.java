@@ -1,5 +1,6 @@
 package net.paulem.vanillahammers.commands;
 
+import net.paulem.vanillahammers.Hammer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -10,6 +11,7 @@ import com.mojang.brigadier.context.CommandContext;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import org.bukkit.inventory.ItemStack;
 
 public class HammersCommand {
 
@@ -31,6 +33,8 @@ public class HammersCommand {
         }
 
         // Logic here
+        ItemStack hammer = Hammer.getHammer();
+        player.getInventory().addItem(hammer);
 
         // If set by a different sender
         return Command.SINGLE_SUCCESS;

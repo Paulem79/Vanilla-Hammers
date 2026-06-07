@@ -1,5 +1,6 @@
-package net.paulem.vanillahammers;
+package net.paulem.vanillahammers.managers;
 
+import net.paulem.vanillahammers.VanillaHammers;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -8,10 +9,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.Collection;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class BreakingStage {
+public class BreakingStageManager {
     public static void startBreakingStages(Block block) {
         Location blockLocation = block.getLocation();
-        // Astuce Java : on utilise un tableau pour pouvoir modifier la valeur dans la classe anonyme
+        // Array in order to edit the single stored value
         final int[] stage = {0};
 
         new BukkitRunnable() {
@@ -34,7 +35,7 @@ public class BreakingStage {
     private static void sendBlockDamageToNearbyPlayers(Location blockLocation, float damage, double radius) {
         if (blockLocation.getWorld() == null) return;
 
-        // Récupère les entités proches et filtre uniquement les joueurs
+        // Get entities and only get players
         Collection<Player> nearbyPlayers = blockLocation.getWorld()
                 .getNearbyEntities(blockLocation, radius, radius, radius)
                 .stream()

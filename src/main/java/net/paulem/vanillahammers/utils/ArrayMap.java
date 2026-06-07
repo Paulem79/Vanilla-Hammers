@@ -1,4 +1,4 @@
-package net.paulem.vanillahammers;
+package net.paulem.vanillahammers.utils;
 
 import java.util.*;
 
@@ -109,5 +109,12 @@ public class ArrayMap<K, V> {
      */
     public int size() {
         return map.size();
+    }
+
+    /**
+     * Get the values of the map.
+     */
+    public Collection<List<V>> values() {
+        return map.values();
     }
 }

@@ -5,7 +5,9 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.Nullable;
 
+// FIXME: On disconnect and when reconnecting, the event isn't called when the player has not moved before (so trigger it on player join event)
 /**
  * Represents an event triggered when a player changes the block they are targeting with their range.
  * <p>
@@ -19,10 +21,10 @@ public class BlockSelectEvent extends Event {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private Player player;
-    private Block block;
-    private BlockFace face;
+    private @Nullable Block block;
+    private @Nullable BlockFace face;
 
-    public BlockSelectEvent(Player player, Block block, BlockFace face) {
+    public BlockSelectEvent(Player player, @Nullable Block block, @Nullable BlockFace face) {
         this.player = player;
         this.block = block;
         this.face = face;
@@ -32,11 +34,11 @@ public class BlockSelectEvent extends Event {
         return player;
     }
 
-    public Block getBlock() {
+    public @Nullable Block getBlock() {
         return block;
     }
 
-    public BlockFace getFace() {
+    public @Nullable BlockFace getFace() {
         return face;
     }
 
@@ -44,12 +46,16 @@ public class BlockSelectEvent extends Event {
         this.player = player;
     }
 
-    public void setBlock(Block block) {
+    public void setBlock(@Nullable Block block) {
         this.block = block;
     }
 
-    public void setFace(BlockFace face) {
+    public void setFace(@Nullable BlockFace face) {
         this.face = face;
+    }
+
+    public boolean isTargetingAir() {
+        return getBlock() == null;
     }
 
     public static HandlerList getHandlerList() {

@@ -1,81 +1,80 @@
 package net.paulem.vanillahammers.listeners;
 
-import net.paulem.vanillahammers.ArrayMap;
-import net.paulem.vanillahammers.Utils;
-import net.paulem.vanillahammers.VanillaHammers;
+import net.paulem.vanillahammers.Hammer;
+import net.paulem.vanillahammers.managers.BlockOutlineManager;
 import net.paulem.vanillahammers.events.BlockSelectEvent;
-import org.bukkit.Material;
+import net.paulem.vanillahammers.utils.Utils;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
-import java.util.function.Consumer;
 
+// TODO: Hi again, how does the breaking stage works ? I want to make a block show the breaking stage based on the tool the player has in his hand, so that if it collects fast then the breaking stage is fast, exactly like vanilla behaviour + link BreakingStageManager
 public class HammersListener implements Listener {
-    public ArrayMap<Player, Block> fakeOutlineBlocks = new ArrayMap<>();
-
     @EventHandler
     public void onMining(BlockBreakEvent event) {
-        // Logique pour casser les blocs en 3x3 lors du vrai minage
+        Player player = event.getPlayer();
+        ItemStack stack = player.getInventory().getItemInMainHand();
+        Block brokenBlock = event.getBlock();
+
+        if(!Hammer.isHammer(stack)) return;
+
+        int playerBlockRange = (int) Utils.getPlayerBlockRange(player);
+        Block lookingAtBlock = player.getTargetBlockExact(playerBlockRange);
+        BlockFace face = player.getTargetBlockFace(playerBlockRange);
+
+        // Prevent stack overflow with Player#breakBlock
+        if(lookingAtBlock == null || !brokenBlock.getLocation().equals(lookingAtBlock.getLocation())) return;
+
+        if(face == null) return;
+
+        List<Block> blocksToDestroy = Hammer.getBlocksFor(lookingAtBlock, face);
+        for (Block b : blocksToDestroy) {
+            if(lookingAtBlock.getLocation().equals(b.getLocation())) continue;
+
+            player.breakBlock(b);
+
+            ItemStack damagedHammer = player.damageItemStack(stack, 1);
+            if(damagedHammer.isEmpty()) {
+                // Play break animation and particles
+                player.broadcastSlotBreak(EquipmentSlot.HAND);
+
+                break;
+            }
+        }
     }
 
     @EventHandler
     public void onSelectBlock(BlockSelectEvent event) {
         Player player = event.getPlayer();
 
-        // If it has previous blocks selected, remove them
-        if(fakeOutlineBlocks.containsKey(player)) {
-            List<Block> blocks = fakeOutlineBlocks.get(player);
-            for (Block block : blocks) {
-                Utils.removeOutline(player, block);
-            }
-            fakeOutlineBlocks.removeKey(player);
-        }
+        // If it has previous outlines, remove them
+        BlockOutlineManager.removePreviousOutlines(player);
 
         Block block = event.getBlock();
 
-        // TODO: Replace with real hammer checking
-        if(player.getInventory().getItemInMainHand().getType() == Material.DIAMOND_PICKAXE) {
+        if(block == null) return;
+        if(block.isEmpty() || !block.isSolid()) return;
+
+        if(Hammer.isHammer(player.getInventory().getItemInMainHand())) {
             BlockFace face = event.getFace();
 
-            Consumer<Block> outlineConsumer = (b) -> {
-                if(b.isEmpty() || !b.isSolid()) return;
-
-                fakeOutlineBlocks.put(player, b);
-                Utils.makeOutline(player, b);
-            };
-
-            // Looking up or down : x and z
-            if(face == BlockFace.UP || face == BlockFace.DOWN) {
-                for (int x = -1; x <= 1; x++) {
-                    for (int z = -1; z <= 1; z++) {
-                        Block b = block.getRelative(x, 0, z);
-                        outlineConsumer.accept(b);
-                    }
-                }
-            }
-            // Looking north or south : x and y
-            else if(face == BlockFace.NORTH || face == BlockFace.SOUTH) {
-                for (int x = -1; x <= 1; x++) {
-                    for (int y = -1; y <= 1; y++) {
-                        Block b = block.getRelative(x, y, 0);
-                        outlineConsumer.accept(b);
-                    }
-                }
-            }
-            // Looking east or west : z and y
-            else if(face == BlockFace.EAST || face == BlockFace.WEST) {
-                for (int z = -1; z <= 1; z++) {
-                    for (int y = -1; y <= 1; y++) {
-                        Block b = block.getRelative(0, y, z);
-                        outlineConsumer.accept(b);
-                    }
-                }
+            List<Block> blocksToOutline = Hammer.getBlocksFor(block, face);
+            for (Block b : blocksToOutline) {
+                BlockOutlineManager.addToOutlines(player, b);
             }
         }
+    }
+
+    @EventHandler
+    public void onPlayerDisconnect(PlayerQuitEvent event) {
+        BlockOutlineManager.removePreviousOutlines(event.getPlayer());
     }
 }

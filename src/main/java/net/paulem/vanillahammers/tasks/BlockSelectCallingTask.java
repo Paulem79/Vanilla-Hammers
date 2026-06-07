@@ -1,12 +1,13 @@
 package net.paulem.vanillahammers.tasks;
 
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import net.paulem.vanillahammers.Utils;
+import net.paulem.vanillahammers.utils.Utils;
 import net.paulem.vanillahammers.events.BlockSelectEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -21,8 +22,23 @@ public class BlockSelectCallingTask implements Consumer<ScheduledTask> {
         for (Player player : Bukkit.getOnlinePlayers()) {
             int playerBlockRange = (int) Utils.getPlayerBlockRange(player);
 
+            Entity entityInPath = player.getTargetEntity(playerBlockRange);
+
             Block block = player.getTargetBlockExact(playerBlockRange);
-            if (block == null) continue;
+            if (block == null) {
+                new BlockSelectEvent(player, null, null).callEvent();
+                continue;
+            }
+
+            // If entity isn't null and it's closer to the player than the block, then continue
+            if (entityInPath != null) {
+                double blockDistance = player.getLocation().distanceSquared(block.getLocation());
+                double entityDistance = player.getLocation().distanceSquared(entityInPath.getLocation());
+                if (entityDistance < blockDistance) {
+                    new BlockSelectEvent(player, null, null).callEvent();
+                    continue;
+                }
+            }
 
             Location loc = block.getLocation();
 

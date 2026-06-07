@@ -1,10 +1,11 @@
 package net.paulem.vanillahammers;
 
-import fr.skytasul.glowingentities.GlowingBlocks;
+import fr.skytasul.glowingentities.GlowingEntities;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import io.papermc.paper.threadedregions.scheduler.GlobalRegionScheduler;
 import net.paulem.vanillahammers.commands.HammersCommand;
 import net.paulem.vanillahammers.listeners.HammersListener;
+import net.paulem.vanillahammers.managers.BlockOutlineManager;
 import net.paulem.vanillahammers.tasks.BlockSelectCallingTask;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,13 +13,16 @@ import org.jetbrains.annotations.NotNull;
 
 public class VanillaHammers extends JavaPlugin {
     public static VanillaHammers INSTANCE;
-    public GlowingBlocks glowingBlocks;
+
+    public static NamespacedKey HAMMER_KEY = key("hammer");
+
+    public GlowingEntities glowingEntities;
 
     @Override
     public void onEnable() {
         INSTANCE = this;
 
-        glowingBlocks = new GlowingBlocks(this);
+        glowingEntities = new GlowingEntities(this);
 
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
             commands.registrar().register(HammersCommand.createCommand().build());
@@ -34,6 +38,8 @@ public class VanillaHammers extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        BlockOutlineManager.removeAllOutlines();
+
         getLogger().info("Vanilla-Hammers has been disabled");
     }
 
