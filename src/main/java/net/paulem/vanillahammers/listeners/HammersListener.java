@@ -39,15 +39,13 @@ public class HammersListener implements Listener {
         for (Block b : blocksToDestroy) {
             if(lookingAtBlock.getLocation().equals(b.getLocation())) continue;
 
+            // TODO: Seems like too much durability is taken off, fix this
             player.breakBlock(b);
+            player.damageItemStack(EquipmentSlot.HAND, 1);
 
-            ItemStack damagedHammer = player.damageItemStack(stack, 1);
-            if(damagedHammer.isEmpty()) {
-                // Play break animation and particles
-                player.broadcastSlotBreak(EquipmentSlot.HAND);
-
-                break;
-            }
+            ItemStack damagedHammer = player.getInventory().getItemInMainHand();
+            // If the hammer is destroyed, don't break blocks anymore
+            if(damagedHammer.isEmpty()) break;
         }
     }
 
