@@ -4,10 +4,16 @@ minecraft = "26.1.2"
 shadow = "9.4.2"
 run-task = "3.0.2"
 glowingentities = "1.4.11"
+arcana = "0.0.1"
+lombok = "1.18.42"
+packed = "1.1.4"
 
 [libraries]
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
 glowingentities = { module = "fr.skytasul:glowingentities", version.ref = "glowingentities" }
+arcana = { module = "ovh.paulem:Arcana", version.ref = "arcana" }
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+packed = { module = "net.radstevee.packed:packed-core", version.ref = "packed" }
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

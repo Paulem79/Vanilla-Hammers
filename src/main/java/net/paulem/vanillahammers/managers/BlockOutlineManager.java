@@ -1,7 +1,9 @@
 package net.paulem.vanillahammers.managers;
 
+import net.paulem.vanillahammers.VanillaHammers;
 import net.paulem.vanillahammers.utils.ArrayMap;
 import net.paulem.vanillahammers.utils.Utils;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -40,10 +42,10 @@ public class BlockOutlineManager {
      * @param player Player to show outline to
      * @param block Block to outline
      */
-    public static void addToOutlines(Player player, Block block) {
+    public static void addToOutlines(Player player, Block block, boolean unbreakable) {
         if(block.isEmpty() || !block.isSolid()) return;
 
         FAKE_OUTLINE_BLOCKS.put(player, block);
-        Utils.makeOutline(player, block);
+        Utils.makeOutline(player, block, unbreakable && VanillaHammers.CONFIG.specialColors ? ChatColor.DARK_RED : ChatColor.BLACK);
     }
 }

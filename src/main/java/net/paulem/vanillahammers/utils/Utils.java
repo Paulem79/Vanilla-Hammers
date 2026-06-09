@@ -4,6 +4,7 @@ import net.kyori.adventure.util.TriState;
 import net.paulem.vanillahammers.VanillaHammers;
 import net.paulem.vanillahammers.loottables.EmptyLootTable;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -41,7 +42,7 @@ public class Utils {
         }
     }
 
-    public static void makeOutline(Player player, Block referenceBlock) {
+    public static void makeOutline(Player player, Block referenceBlock, ChatColor color) {
         referenceBlock.getWorld().spawn(referenceBlock.getLocation(), Shulker.class, shulker -> {
             shulker.setLootTable(EmptyLootTable.INSTANCE);
             shulker.setAI(false);
@@ -55,7 +56,7 @@ public class Utils {
             shulker.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, PotionEffect.INFINITE_DURATION, 0, true, false, false));
 
             try {
-                VanillaHammers.INSTANCE.glowingEntities.setGlowing(shulker, player, ChatColor.BLACK);
+                VanillaHammers.INSTANCE.glowingEntities.setGlowing(shulker, player, color);
             } catch (ReflectiveOperationException e) {
                 e.printStackTrace();
             }
@@ -79,5 +80,16 @@ public class Utils {
 
     public static void setSize(LivingEntity entity, double newScale) {
         Objects.requireNonNull(entity.getAttribute(Attribute.SCALE)).setBaseValue(newScale);
+    }
+
+    /**
+     * Checks if the block is unbreakable by the player.<br>
+     * If player is in creative, it's considered as breakable.<br>
+     * Diamond is unbreakable
+     */
+    public static boolean isBlockUnbreakable(Player player, Block block) {
+        if(player.getGameMode() == GameMode.CREATIVE) return false;
+
+        return block.getBreakSpeed(player) <= 0.0f;
     }
 }

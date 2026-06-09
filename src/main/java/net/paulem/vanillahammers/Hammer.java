@@ -17,8 +17,8 @@ public class Hammer {
         ItemStack stack = ItemStack.of(Material.IRON_PICKAXE);
         stack.setAmount(1);
 
-        stack.setData(DataComponentTypes.MAX_DAMAGE, 25);
-        stack.setData(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelData.customModelData().addString(VanillaHammers.HAMMER_KEY.asString()));
+        stack.setData(DataComponentTypes.MAX_DAMAGE, 8192);
+        stack.setData(DataComponentTypes.ITEM_MODEL, VanillaHammers.HAMMER_KEY);
 
         stack.editPersistentDataContainer(persistentDataContainer -> persistentDataContainer.set(VanillaHammers.HAMMER_KEY, PersistentDataType.BOOLEAN, true));
 
@@ -26,6 +26,8 @@ public class Hammer {
     }
 
     public static boolean isHammer(ItemStack stack) {
+        if(stack == null) return false;
+
         return stack.getPersistentDataContainer().has(VanillaHammers.HAMMER_KEY) && Boolean.TRUE.equals(stack.getPersistentDataContainer().get(VanillaHammers.HAMMER_KEY, PersistentDataType.BOOLEAN));
     }
 

@@ -4,6 +4,7 @@ import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.paulem.vanillahammers.utils.Utils;
 import net.paulem.vanillahammers.events.BlockSelectEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -20,6 +21,11 @@ public class BlockSelectCallingTask implements Consumer<ScheduledTask> {
     @Override
     public void accept(ScheduledTask scheduledTask) {
         for (Player player : Bukkit.getOnlinePlayers()) {
+            if(player.getGameMode() == GameMode.SPECTATOR) {
+                new BlockSelectEvent(player, null, null).callEvent();
+                continue;
+            }
+
             int playerBlockRange = (int) Utils.getPlayerBlockRange(player);
 
             Entity entityInPath = player.getTargetEntity(playerBlockRange);

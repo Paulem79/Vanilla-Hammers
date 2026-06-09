@@ -1,11 +1,15 @@
 package net.paulem.vanillahammers.listeners;
 
+import io.papermc.paper.event.block.BlockBreakProgressUpdateEvent;
 import net.paulem.vanillahammers.Hammer;
+import net.paulem.vanillahammers.events.PlayerStopDamageBlockEvent;
 import net.paulem.vanillahammers.managers.BlockOutlineManager;
 import net.paulem.vanillahammers.events.BlockSelectEvent;
+import net.paulem.vanillahammers.managers.BreakingStageManager;
 import net.paulem.vanillahammers.utils.Utils;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,8 +20,57 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
-// TODO: Hi again, how does the breaking stage works ? I want to make a block show the breaking stage based on the tool the player has in his hand, so that if it collects fast then the breaking stage is fast, exactly like vanilla behaviour + link BreakingStageManager
 public class HammersListener implements Listener {
+    @EventHandler
+    public void onBlockProgressEvent(BlockBreakProgressUpdateEvent event) {
+        Entity entity = event.getEntity();
+
+        if(!(entity instanceof Player player)) return;
+
+        ItemStack stack = player.getInventory().getItemInMainHand();
+        if(!Hammer.isHammer(stack)) return;
+
+        Block block = event.getBlock();
+
+        int playerBlockRange = (int) Utils.getPlayerBlockRange(player);
+        BlockFace face = player.getTargetBlockFace(playerBlockRange);
+
+        List<Block> blocksToDestroy = Hammer.getBlocksFor(block, face);
+        for (Block b : blocksToDestroy) {
+            // Don't show break stage on the block being broken, client already do it
+            if(block.getLocation().equals(b.getLocation())) continue;
+            // Don't show break stage on eg: grass
+            if(b.isEmpty() || !b.isSolid()) continue;
+            // Don't show break stage on unbreakable blocks
+            if(Utils.isBlockUnbreakable(player, b)) continue;
+
+            float progress = event.getProgress();
+            BreakingStageManager.sendBlockDamageToNearbyPlayers(b.getLocation(), progress, 10.0);
+        }
+    }
+
+    @EventHandler
+    public void onBlockProgressEvent(PlayerStopDamageBlockEvent event) {
+        Player player = event.getPlayer();
+
+        ItemStack stack = player.getInventory().getItemInMainHand();
+        if(!Hammer.isHammer(stack)) return;
+
+        Block block = event.getBlock();
+        BlockFace face = event.getFace();
+
+        if(block == null || face == null) return;
+
+        List<Block> blocksToDestroy = Hammer.getBlocksFor(block, face);
+        for (Block b : blocksToDestroy) {
+            if(block.getLocation().equals(b.getLocation())) continue;
+            // Don't reset break stage on unbreakable blocks
+            if(Utils.isBlockUnbreakable(player, b)) continue;
+
+            BreakingStageManager.resetBlockDamageToNearbyPlayers(b.getLocation(), 10.0);
+        }
+    }
+
     @EventHandler
     public void onMining(BlockBreakEvent event) {
         Player player = event.getPlayer();
@@ -39,9 +92,13 @@ public class HammersListener implements Listener {
         for (Block b : blocksToDestroy) {
             if(lookingAtBlock.getLocation().equals(b.getLocation())) continue;
 
-            // TODO: Seems like too much durability is taken off, fix this
+            // Don't break unbreakable blocks
+            if(Utils.isBlockUnbreakable(player, b)) continue;
+
+            // FIXME: Seems like too much durability is taken off
             player.breakBlock(b);
             player.damageItemStack(EquipmentSlot.HAND, 1);
+            BreakingStageManager.resetBlockDamageToNearbyPlayers(b.getLocation(), 10.0);
 
             ItemStack damagedHammer = player.getInventory().getItemInMainHand();
             // If the hammer is destroyed, don't break blocks anymore
@@ -66,7 +123,7 @@ public class HammersListener implements Listener {
 
             List<Block> blocksToOutline = Hammer.getBlocksFor(block, face);
             for (Block b : blocksToOutline) {
-                BlockOutlineManager.addToOutlines(player, b);
+                BlockOutlineManager.addToOutlines(player, b, Utils.isBlockUnbreakable(player, b));
             }
         }
     }

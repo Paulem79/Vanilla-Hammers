@@ -1,5 +1,6 @@
 plugins {
     java
+    kotlin("jvm") version "2.+"
     alias(libs.plugins.shadow)
     alias(libs.plugins.run.paper)
 }
@@ -7,16 +8,59 @@ plugins {
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven {
+        name = "paulemReleases"
+        url = uri("https://maven.paulem.net/releases")
+    }
+    maven {
+        name = "radRepoPublic"
+        url = uri("https://maven.rad.vg/public")
+    }
+    maven("https://maven.mcbrawls.net/releases/")
+    maven("https://repo.viaversion.com")
+    maven {
+        url = uri("https://libraries.minecraft.net/")
+    }
 }
 
 dependencies {
     implementation(libs.glowingentities)
+    implementation(libs.arcana)
+    implementation(libs.packed)
+
+    implementation("net.mcbrawls.inject:spigot:3.+")
+    implementation("net.mcbrawls.inject:api:3.+")
+    implementation("net.mcbrawls.inject:http:3.+")
+    implementation("net.mcbrawls.inject:jetty:3.+")
+    implementation("net.mcbrawls.inject:javalin:3.+") {
+        isTransitive = false
+    }
+    implementation("io.javalin:javalin:6.7.0")
 
     compileOnly(libs.paper.api)
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
 }
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(25))
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25)
+    }
+}
+
+artifacts.archives(tasks.shadowJar)
+tasks.shadowJar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    archiveClassifier.set("")
+    exclude("META-INF/**")
+
+    relocate("fr.skytasul.glowingentities", "net.paulem.vanillahammers.glowingentities")
+    relocate("ovh.paulem.arcana", "net.paulem.vanillahammers.arcana")
 }
 
 tasks {

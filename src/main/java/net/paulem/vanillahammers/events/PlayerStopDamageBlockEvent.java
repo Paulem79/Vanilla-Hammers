@@ -10,19 +10,12 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-// FIXME: On disconnect and when reconnecting, the event isn't called when the player has not moved before (so trigger it on player join event)
 /**
- * Represents an event triggered when a player changes the block they are targeting with their range.
- * <p>
- * This event is called periodically by a scheduled task ({@code BlockSelectCallingTask})
- * which compares the position of the block currently targeted by the player with the last recorded block.
- * </p>
- * @author Paulem
- * @version 1.0
+ * This is not tick perfect ! But calls after ~4 ticks
  */
-public class BlockSelectEvent extends Event {
-
+public class PlayerStopDamageBlockEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
+
     @Setter
     @Getter
     private Player player;
@@ -33,14 +26,10 @@ public class BlockSelectEvent extends Event {
     @Getter
     private @Nullable BlockFace face;
 
-    public BlockSelectEvent(Player player, @Nullable Block block, @Nullable BlockFace face) {
+    public PlayerStopDamageBlockEvent(Player player, @Nullable Block block, @Nullable BlockFace face) {
         this.player = player;
         this.block = block;
         this.face = face;
-    }
-
-    public boolean isTargetingAir() {
-        return getBlock() == null;
     }
 
     public static HandlerList getHandlerList() {
