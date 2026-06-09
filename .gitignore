@@ -1,6 +1,7 @@
 gradlew
 gradlew.bat
 gradle/wrapper/gradle-wrapper.jar
+.kotlin
 
 # MacOS DS_Store files
 .DS_Store
