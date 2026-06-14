@@ -5,11 +5,11 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import io.papermc.paper.threadedregions.scheduler.GlobalRegionScheduler;
 import net.paulem.vanillahammers.commands.HammersCommand;
 import net.paulem.vanillahammers.config.Config;
-import net.paulem.vanillahammers.listeners.BlockMiningTracker;
+import net.paulem.vanillahammers.tasks.BlockMiningTask;
 import net.paulem.vanillahammers.listeners.HammersListener;
 import net.paulem.vanillahammers.managers.BlockOutlineManager;
 import net.paulem.vanillahammers.resourcepack.ResourcePackHosting;
-import net.paulem.vanillahammers.tasks.BlockSelectCallingTask;
+import net.paulem.vanillahammers.tasks.BlockSelectTask;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -46,14 +46,14 @@ public class VanillaHammers extends JavaPlugin {
         });
 
         getServer().getPluginManager().registerEvents(new HammersListener(), INSTANCE);
-        getServer().getPluginManager().registerEvents(new BlockMiningTracker(), INSTANCE);
+        getServer().getPluginManager().registerEvents(new BlockMiningTask(), INSTANCE);
 
         packHosting = new ResourcePackHosting();
         getServer().getPluginManager().registerEvents(packHosting, this);
         packHosting.start();
 
         GlobalRegionScheduler globalScheduler = getServer().getGlobalRegionScheduler();
-        globalScheduler.runAtFixedRate(INSTANCE, new BlockSelectCallingTask(), 1L, 1L);
+        globalScheduler.runAtFixedRate(INSTANCE, new BlockSelectTask(), 1L, 1L);
 
         getLogger().info("VanillaHammers has been enabled");
     }

@@ -1,4 +1,4 @@
-package net.paulem.vanillahammers.listeners;
+package net.paulem.vanillahammers.tasks;
 
 import net.paulem.vanillahammers.VanillaHammers;
 import net.paulem.vanillahammers.events.PlayerStopDamageBlockEvent;
@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BlockMiningTracker implements Listener {
+public class BlockMiningTask implements Listener {
     // Stores the player's UUID -> Their current mining info
     private final Map<UUID, MiningSession> activeMining = new ConcurrentHashMap<>();
 
@@ -25,7 +25,7 @@ public class BlockMiningTracker implements Listener {
     // If a player doesn't damage the block for 5 ticks, they stopped mining.
     private static final int TICK_THRESHOLD = 5;
 
-    public BlockMiningTracker() {
+    public BlockMiningTask() {
         // Start the tracking task every 4 ticks (0.2 seconds)
         startTrackingTask();
     }

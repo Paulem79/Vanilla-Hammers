@@ -16,7 +16,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Set;
@@ -118,8 +117,6 @@ public class HammersListener implements Listener {
         BlockOutlineManager.removePreviousOutlines(player);
 
         Block block = event.getBlock();
-
-        System.out.println("Block: " + block);
 
         if(block == null) return;
         if(block.isEmpty() || !block.isSolid()) return;

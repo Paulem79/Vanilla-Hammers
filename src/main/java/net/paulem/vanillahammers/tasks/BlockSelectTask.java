@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class BlockSelectCallingTask implements Consumer<ScheduledTask> {
+public class BlockSelectTask implements Consumer<ScheduledTask> {
     public Map<Player, Location> selectedBlocks = new HashMap<>();
 
     @Override
