@@ -2,13 +2,13 @@ package net.paulem.vanillahammers.resourcepack;
 
 import io.javalin.Javalin;
 import lombok.Getter;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.mcbrawls.inject.javalin.InjectJavalinFactory;
 import net.mcbrawls.inject.spigot.InjectSpigot;
 import net.paulem.krimson.resourcepack.creator.ResourcePackKt;
 import net.paulem.vanillahammers.VanillaHammers;
 import net.radstevee.packed.core.pack.PackFormat;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,7 +29,7 @@ public class ResourcePackHosting implements Listener {
     public File pack;
 
     @Getter
-    private boolean canPlayersJoin = false;
+    private boolean isJavalinReady = false;
     @Getter
     private Javalin javalin;
 
@@ -53,12 +53,12 @@ public class ResourcePackHosting implements Listener {
         javalin.events(eventConfig -> {
             eventConfig.serverStarted(() -> {
                 VanillaHammers.INSTANCE.getLogger().info("Javalin started");
-                canPlayersJoin = true;
+                isJavalinReady = true;
             });
 
             eventConfig.serverStartFailed(() -> {
                 VanillaHammers.INSTANCE.getLogger().info("Javalin failed to start");
-                canPlayersJoin = true;
+                isJavalinReady = true;
             });
         });
 
@@ -73,12 +73,7 @@ public class ResourcePackHosting implements Listener {
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) throws IOException {
-        if (!canPlayersJoin) {
-            event.getPlayer().kickPlayer("Server is not ready yet !");
-            return;
-        }
-
+    public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
         if (pack == null) {
@@ -86,13 +81,17 @@ public class ResourcePackHosting implements Listener {
             VanillaHammers.INSTANCE.getLogger().info("Generated resource pack");
         }
 
-        player.addResourcePack(
-                UUID.nameUUIDFromBytes(Files.readAllBytes(pack.toPath())),
-                "http://localhost:" + Bukkit.getPort() + "/" + RESOURCE_PACK_PATH,
-                createSha1(pack),
-                ChatColor.GREEN + "Hammer Resource Pack",
-                false
-        );
+        try {
+            player.addResourcePack(
+                    UUID.nameUUIDFromBytes(Files.readAllBytes(pack.toPath())),
+                    "http://localhost:" + Bukkit.getPort() + "/" + RESOURCE_PACK_PATH,
+                    createSha1(pack),
+                    NamedTextColor.GREEN + "Hammer Resource Pack",
+                    false
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public byte[] createSha1(File file) {

@@ -1,6 +1,8 @@
 package net.paulem.vanillahammers.commands;
 
-import net.paulem.vanillahammers.Hammer;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import net.paulem.vanillahammers.hammers.Hammer;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -18,7 +20,15 @@ public class HammersCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> createCommand() {
         return Commands.literal("hammers")
             .then(Commands.literal("give")
-                .executes(HammersCommand::runLogic)
+                    .then(Commands.argument("type", StringArgumentType.word())
+                            .suggests((ctx, builder) -> {
+                                for (Material material : Hammer.HAMMERS.keys()) {
+                                    builder.suggest(material.name());
+                                }
+
+                                return builder.buildFuture();
+                            })
+                            .executes(HammersCommand::runLogic))
             );
     }
 
@@ -33,8 +43,18 @@ public class HammersCommand {
         }
 
         // Logic here
-        ItemStack hammer = Hammer.getHammer();
-        player.getInventory().addItem(hammer);
+        String type = ctx.getArgument("type", String.class);
+        Material material = Material.matchMaterial(type);
+
+        Hammer hammer = Hammer.HAMMERS.getOrNull(material);
+
+        if(hammer == null) {
+            sender.sendMessage("Hammer not found");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        ItemStack hammerStack = hammer.getStack();
+        player.getInventory().addItem(hammerStack);
 
         // If set by a different sender
         return Command.SINGLE_SUCCESS;

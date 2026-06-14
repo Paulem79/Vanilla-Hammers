@@ -14,15 +14,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Shulker;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Objects;
 
 public class Utils {
-    public static double DEFAULT_BLOCK_RANGE = 4.5;
+    private Utils() {}
 
-    public static double getPlayerBlockRange(Player player) {
+    public static double DEFAULT_BLOCK_RANGE = 4.5;
+    public static double DEFAULT_ENTITY_RANGE = 3;
+
+    public static int getPlayerBlockRange(Player player) {
+        return (int) Math.ceil(getPlayerRange(player));
+    }
+
+    public static double getPlayerRange(Player player) {
         AttributeInstance attribute = player.getAttribute(Attribute.BLOCK_INTERACTION_RANGE);
         if (attribute != null) {
             // Get the attribute value modified
@@ -35,9 +43,29 @@ public class Utils {
                 // Get the attribute value from default type
                 return defaultAttribute.getValue();
             } else {
-                VanillaHammers.INSTANCE.getLogger().warning("Could not get block range for player " + player.getName() + ", using default value");
+                //VanillaHammers.INSTANCE.getLogger().warning("Could not get block range for player " + player.getName() + ", using default value");
                 // In fallback, from an hardcoded value
                 return DEFAULT_BLOCK_RANGE;
+            }
+        }
+    }
+
+    public static double getPlayerEntityRange(@NotNull Player player) {
+        AttributeInstance attribute = player.getAttribute(Attribute.ENTITY_INTERACTION_RANGE);
+        if (attribute != null) {
+            // Get the attribute value modified
+            return attribute.getValue();
+        } else {
+            Attributable defaultAttributes = player.getType().getDefaultAttributes();
+            AttributeInstance defaultAttribute = defaultAttributes.getAttribute(Attribute.ENTITY_INTERACTION_RANGE);
+
+            if (defaultAttribute != null) {
+                // Get the attribute value from default type
+                return defaultAttribute.getValue();
+            } else {
+                //VanillaHammers.INSTANCE.getLogger().warning("Could not get entity range for player " + player.getName() + ", using default value");
+                // In fallback, from an hardcoded value
+                return DEFAULT_ENTITY_RANGE;
             }
         }
     }

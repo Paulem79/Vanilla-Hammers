@@ -1,6 +1,6 @@
 package net.paulem.krimson.resourcepack.creator
 
-import net.paulem.vanillahammers.VanillaHammers
+import net.paulem.vanillahammers.hammers.Hammer
 import net.radstevee.packed.core.asset.impl.ResourceAssetResolutionStrategy
 import net.radstevee.packed.core.item.definition.BasicItem
 import net.radstevee.packed.core.item.definition.ItemDefinition
@@ -23,7 +23,7 @@ fun createHammerModel(
 }
 
 fun main(dataFolder: File, packFormat: PackFormat): File {
-    val zipFile = File(dataFolder, "krimson_resource_pack_v${packFormat}.zip")
+    val zipFile = File(dataFolder, "hammer_resource_pack.zip")
     val deleted = zipFile.delete()
 
     if (!deleted) {
@@ -36,7 +36,7 @@ fun main(dataFolder: File, packFormat: PackFormat): File {
 
     val pack = resourcePack {
         meta {
-            description = "§eKrimson Resource Pack"
+            description = "§eHammer Resource Pack"
             format = packFormat
             outputDir = tmpDir
         }
@@ -44,9 +44,19 @@ fun main(dataFolder: File, packFormat: PackFormat): File {
         assetResolutionStrategy = ResourceAssetResolutionStrategy(this::class.java)
     }
 
-    val modelPath = VanillaHammers.HAMMER_KEY
-    val texturePath = VanillaHammers.HAMMER_TEXTURE_KEY
-    createHammerModel(pack, Key(modelPath.namespace, modelPath.key), Key(texturePath.namespace, texturePath.key))
+    for (material in Hammer.HAMMERS.keys()) {
+        val hammer = Hammer.HAMMERS.getOrNull(material) ?: continue
+
+        println("Adding hammer $material, $hammer")
+
+        val modelKey = hammer.getModelKey()
+        println("Model key: $modelKey")
+        if(modelKey == null) continue
+
+        val textureKey = Key(modelKey.namespace, "item/" + modelKey.key)
+        println("Creating model for $material, $modelKey, $textureKey")
+        createHammerModel(pack, Key(modelKey.namespace, modelKey.key), textureKey)
+    }
 
     pack.save(deleteOld = true)
 

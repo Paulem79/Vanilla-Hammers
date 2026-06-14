@@ -22,8 +22,7 @@ public class VanillaHammers extends JavaPlugin {
 
     public static ResourcePackHosting packHosting;
 
-    public static NamespacedKey HAMMER_KEY;
-    public static NamespacedKey HAMMER_TEXTURE_KEY;
+    public static NamespacedKey HAMMER_PDC_KEY;
 
     public GlowingEntities glowingEntities;
 
@@ -31,8 +30,7 @@ public class VanillaHammers extends JavaPlugin {
     public void onEnable() {
         INSTANCE = this;
 
-        HAMMER_KEY = key("hammer");
-        HAMMER_TEXTURE_KEY = key("item/hammer");
+        HAMMER_PDC_KEY = key("hammer");
 
         saveDefaultConfig();
 

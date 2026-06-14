@@ -2,7 +2,7 @@ package net.paulem.vanillahammers.listeners;
 
 import net.paulem.vanillahammers.VanillaHammers;
 import net.paulem.vanillahammers.events.PlayerStopDamageBlockEvent;
-import net.paulem.vanillahammers.utils.Utils;
+import net.paulem.vanillahammers.utils.RaycastUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -78,8 +78,7 @@ public class BlockMiningTracker implements Listener {
      * When player stop mining a block
      */
     private void onPlayerStopMining(Player player, Block block) {
-        int playerBlockRange = (int) Utils.getPlayerBlockRange(player);
-        BlockFace face = player.getTargetBlockFace(playerBlockRange);
+        BlockFace face = RaycastUtils.getTargetBlockFace(player);
 
         new PlayerStopDamageBlockEvent(player, block, face).callEvent();
     }
