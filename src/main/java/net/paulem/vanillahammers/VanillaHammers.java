@@ -5,6 +5,7 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import io.papermc.paper.threadedregions.scheduler.GlobalRegionScheduler;
 import net.paulem.vanillahammers.commands.HammersCommand;
 import net.paulem.vanillahammers.config.Config;
+import net.paulem.vanillahammers.hammers.Hammer;
 import net.paulem.vanillahammers.tasks.BlockMiningTask;
 import net.paulem.vanillahammers.listeners.HammersListener;
 import net.paulem.vanillahammers.managers.BlockOutlineManager;
@@ -39,6 +40,8 @@ public class VanillaHammers extends JavaPlugin {
 
         CONFIG = API.loadConfig(Config.class, getConfig());
 
+        Hammer.init();
+
         glowingEntities = new GlowingEntities(INSTANCE);
 
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
@@ -53,7 +56,7 @@ public class VanillaHammers extends JavaPlugin {
         packHosting.start();
 
         GlobalRegionScheduler globalScheduler = getServer().getGlobalRegionScheduler();
-        globalScheduler.runAtFixedRate(INSTANCE, new BlockSelectTask(), 1L, 1L);
+        globalScheduler.runAtFixedRate(INSTANCE, new BlockSelectTask(), 1L, 2L);
 
         getLogger().info("VanillaHammers has been enabled");
     }

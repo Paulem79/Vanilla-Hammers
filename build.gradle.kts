@@ -3,6 +3,7 @@ plugins {
     kotlin("jvm") version "2.+"
     alias(libs.plugins.shadow)
     alias(libs.plugins.run.paper)
+    alias(libs.plugins.vanilla.gradle)
 }
 
 repositories {
@@ -16,7 +17,7 @@ repositories {
         name = "radRepoPublic"
         url = uri("https://maven.rad.vg/public")
     }
-    maven("https://maven.mcbrawls.net/releases/")
+    maven("https://maven.paulem.net/releases/")
     maven("https://repo.viaversion.com")
     maven {
         url = uri("https://libraries.minecraft.net/")
@@ -78,6 +79,28 @@ tasks {
         val props = mapOf("version" to version, "description" to project.description)
         filesMatching("plugin.yml") {
             expand(props)
+        }
+    }
+}
+
+fun getProp(key: String, default: String): String {
+    val prop = providers.gradleProperty(key);
+    return prop.getOrElse(default)
+}
+
+minecraft {
+    injectRepositories(false)
+    version("26.1.2")
+    runs {
+        client {
+            workingDirectory(file("run/client"))
+            args("--quickPlayMultiplayer", "127.0.0.1:25565")
+            parameterTokens {
+                put("auth_player_name", getProp("mc.username", "Paulem79"))
+                put("auth_uuid",        getProp("mc.uuid", "00000000-0000-0000-0000-000000000000"))
+                put("auth_access_token", getProp("mc.access.token", "0"))
+                put("user_type", "msa")
+            }
         }
     }
 }

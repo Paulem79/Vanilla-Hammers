@@ -44,7 +44,7 @@ public class HammersCommand {
 
         // Logic here
         String type = ctx.getArgument("type", String.class);
-        Material material = Material.matchMaterial(type);
+        Material material = Material.matchMaterial(type.toUpperCase());
 
         Hammer hammer = Hammer.HAMMERS.getOrNull(material);
 

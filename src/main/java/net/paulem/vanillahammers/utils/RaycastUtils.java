@@ -36,7 +36,7 @@ public class RaycastUtils {
                 eyeLocation.getDirection(),
                 playerRange,
                 FluidCollisionMode.NEVER,
-                true
+                false
         );
 
         // If the raytrace hit a block, return it
@@ -65,7 +65,6 @@ public class RaycastUtils {
 
         // If we hit something, return the entity
         if (rayTrace != null && rayTrace.getHitEntity() != null) {
-            System.out.println("Entity hit: " + rayTrace.getHitEntity().getName());
             return rayTrace.getHitEntity();
         }
 

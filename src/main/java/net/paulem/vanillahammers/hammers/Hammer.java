@@ -2,7 +2,9 @@ package net.paulem.vanillahammers.hammers;
 
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 import net.paulem.vanillahammers.VanillaHammers;
+import net.paulem.vanillahammers.langs.LangsManager;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -21,12 +23,18 @@ public class Hammer implements RegistryKey<Material> {
     // Could have been a FrozenRegistry, but I prefer Writeable here because in case someone wants to add another hammer on the fly, whatever about the resourcepack, then he's welcome !
     public static final WriteableRegistry<Hammer, Material> HAMMERS = new WriteableRegistry<>();
 
-    public static final Hammer WOOD = register(HammerProperties.WOOD);
-    public static final Hammer STONE = register(HammerProperties.STONE);
-    public static final Hammer IRON = register(HammerProperties.IRON);
-    public static final Hammer GOLD = register(HammerProperties.GOLD);
-    public static final Hammer DIAMOND = register(HammerProperties.DIAMOND);
-    public static final Hammer NETHERITE = register(HammerProperties.NETHERITE);
+    public static final Hammer WOOD = register(Material.WOODEN_PICKAXE, 1, 120, Material.OAK_PLANKS, "vanillahammers.wood");
+    public static final Hammer STONE = register(Material.STONE_PICKAXE, 1, 300, Material.STONE, "vanillahammers.stone");
+    public static final Hammer IRON = register(Material.IRON_PICKAXE, 1, 600, Material.IRON_INGOT, "vanillahammers.iron");
+    public static final Hammer GOLD = register(Material.GOLDEN_PICKAXE, 1, 64, Material.GOLD_INGOT, "vanillahammers.gold");
+    public static final Hammer DIAMOND = register(Material.DIAMOND_PICKAXE, 1, 4500, Material.DIAMOND, "vanillahammers.diamond");
+    public static final Hammer NETHERITE = register(Material.NETHERITE_PICKAXE, 2, 6000, Material.NETHERITE_INGOT, "vanillahammers.netherite");
+
+    public static void init() {
+        VanillaHammers.INSTANCE.getLogger().info("Initialized hammers !");
+
+        LangsManager.init();
+    }
 
     @Nullable
     public static Hammer getHammer(ItemStack stack) {
@@ -57,21 +65,19 @@ public class Hammer implements RegistryKey<Material> {
     private final int maxDamage;
     @Getter
     private final Material recipeMaterial;
+    @Getter
+    private final NamespacedKey hammerTranslationKey;
 
-    public Hammer(Material material, int radius, int maxDamage, Material recipeMaterial) {
+    public Hammer(Material material, int radius, int maxDamage, Material recipeMaterial, String hammerTranslationKey) {
         this.material = material;
         this.radius = radius;
         this.maxDamage = maxDamage;
         this.recipeMaterial = recipeMaterial;
+        this.hammerTranslationKey = VanillaHammers.key(hammerTranslationKey);
     }
 
-    public static Hammer register(HammerProperties properties) {
-        Material material = properties.material();
-        int maxDamage = properties.durability();
-        int radius = properties.radius();
-        Material recipeMaterial = properties.recipeMaterial();
-
-        Hammer hammer = new Hammer(material, radius, maxDamage, recipeMaterial);
+    public static Hammer register(Material material, int radius, int maxDamage, Material recipeMaterial, String hammerName) {
+        Hammer hammer = new Hammer(material, radius, maxDamage, recipeMaterial, hammerName);
         boolean registered = HAMMERS.register(hammer);
 
         if(!registered) {
@@ -88,6 +94,8 @@ public class Hammer implements RegistryKey<Material> {
 
         stack.setData(DataComponentTypes.MAX_DAMAGE, maxDamage);
         stack.setData(DataComponentTypes.ITEM_MODEL, getModelKey());
+        // TODO: Make it translatable
+        stack.setData(DataComponentTypes.ITEM_NAME, Component.translatable(getHammerTranslationKey().asString()));
 
         stack.editPersistentDataContainer(persistentDataContainer ->
                 persistentDataContainer.set(VanillaHammers.HAMMER_PDC_KEY, PersistentDataType.STRING, material.name())

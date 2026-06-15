@@ -39,28 +39,31 @@ public class ResourcePackHosting implements Listener {
 
     public void aggregate(File zipFile) {
         this.pack = zipFile;
-
-        javalin.get("/" + RESOURCE_PACK_PATH, (ctx ->
-            ctx.result(Files.readAllBytes(zipFile.toPath()))
-        ));
     }
 
     public void start() {
-        javalin = InjectJavalinFactory.create(InjectSpigot.INSTANCE);
+        javalin = InjectJavalinFactory.create(InjectSpigot.INSTANCE, config -> {
+            config.routes.get("/" + RESOURCE_PACK_PATH, ctx -> {
+                if (pack == null) {
+                    // Error if not aggregated
+                    ctx.status(404).result("Resource pack not available yet");
+                    return;
+                }
+                ctx.result(Files.readAllBytes(pack.toPath()));
+            });
 
-        VanillaHammers.INSTANCE.getLogger().info("Javalin initialized");
-
-        javalin.events(eventConfig -> {
-            eventConfig.serverStarted(() -> {
+            config.events.serverStarted(() -> {
                 VanillaHammers.INSTANCE.getLogger().info("Javalin started");
                 isJavalinReady = true;
             });
 
-            eventConfig.serverStartFailed(() -> {
+            config.events.serverStartFailed(() -> {
                 VanillaHammers.INSTANCE.getLogger().info("Javalin failed to start");
                 isJavalinReady = true;
             });
         });
+
+        VanillaHammers.INSTANCE.getLogger().info("Javalin initialized");
 
         javalin.start();
     }

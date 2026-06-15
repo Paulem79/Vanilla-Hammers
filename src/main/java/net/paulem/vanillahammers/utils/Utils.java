@@ -14,6 +14,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Shulker;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.BoundingBox;
+import org.bukkit.util.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -119,5 +121,15 @@ public class Utils {
         if(player.getGameMode() == GameMode.CREATIVE) return false;
 
         return block.getBreakSpeed(player) <= 0.0f;
+    }
+
+    public static boolean isCube(Block block) {
+        VoxelShape voxelShape = block.getCollisionShape();
+        BoundingBox boundingBox = block.getBoundingBox();
+        return (voxelShape.getBoundingBoxes().size() == 1
+                && boundingBox.getWidthX() == 1.0
+                && boundingBox.getHeight() == 1.0
+                && boundingBox.getWidthZ() == 1.0
+        );
     }
 }
