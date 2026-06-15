@@ -5,7 +5,7 @@ shadow = "9.4.2"
 run-task = "3.0.2"
 glowingentities = "1.4.11"
 arcana = "0.0.1"
-lombok = "1.18.42"
+lombok = "1.18.46"
 packed = "1.1.4"
 
 [libraries]
