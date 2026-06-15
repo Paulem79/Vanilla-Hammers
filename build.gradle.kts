@@ -28,14 +28,14 @@ dependencies {
     implementation(libs.arcana)
     implementation(libs.packed)
 
-    implementation("net.mcbrawls.inject:spigot:3.+")
-    implementation("net.mcbrawls.inject:api:3.+")
-    implementation("net.mcbrawls.inject:http:3.+")
-    implementation("net.mcbrawls.inject:jetty:3.+")
-    implementation("net.mcbrawls.inject:javalin:3.+") {
+    implementation(libs.mcbrawls.spigot)
+    implementation(libs.mcbrawls.api)
+    implementation(libs.mcbrawls.http)
+    implementation(libs.mcbrawls.jetty)
+    implementation(libs.mcbrawls.javalin) {
         isTransitive = false
     }
-    implementation("io.javalin:javalin:6.7.0")
+    implementation(libs.javalin)
 
     compileOnly(libs.paper.api)
     compileOnly(libs.lombok)
@@ -53,17 +53,18 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 artifacts.archives(tasks.shadowJar)
-tasks.shadowJar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    archiveClassifier.set("")
-    exclude("META-INF/**")
-
-    relocate("fr.skytasul.glowingentities", "net.paulem.vanillahammers.glowingentities")
-    relocate("ovh.paulem.arcana", "net.paulem.vanillahammers.arcana")
-}
 
 tasks {
+    shadowJar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+        archiveClassifier.set("")
+        exclude("META-INF/**")
+
+        relocate("fr.skytasul.glowingentities", "net.paulem.vanillahammers.glowingentities")
+        relocate("ovh.paulem.arcana", "net.paulem.vanillahammers.arcana")
+    }
+
     build {
         dependsOn(shadowJar)
     }

@@ -7,6 +7,8 @@ glowingentities = "1.4.11"
 arcana = "0.0.1"
 lombok = "1.18.46"
 packed = "1.1.4"
+mcbrawls = "3.+"
+javalin = "6.7.0"
 
 [libraries]
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
@@ -14,6 +16,12 @@ glowingentities = { module = "fr.skytasul:glowingentities", version.ref = "glowi
 arcana = { module = "ovh.paulem:Arcana", version.ref = "arcana" }
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 packed = { module = "net.radstevee.packed:packed-core", version.ref = "packed" }
+mcbrawls-spigot = { module = "net.mcbrawls.inject:spigot", version.ref = "mcbrawls" }
+mcbrawls-api = { module = "net.mcbrawls.inject:api", version.ref = "mcbrawls" }
+mcbrawls-http = { module = "net.mcbrawls.inject:http", version.ref = "mcbrawls" }
+mcbrawls-jetty = { module = "net.mcbrawls.inject:jetty", version.ref = "mcbrawls" }
+mcbrawls-javalin = { module = "net.mcbrawls.inject:javalin", version.ref = "mcbrawls" }
+javalin = { module = "io.javalin:javalin", version.ref = "javalin" }
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
