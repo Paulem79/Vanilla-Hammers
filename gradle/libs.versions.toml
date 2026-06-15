@@ -8,7 +8,7 @@ arcana = "0.0.1"
 lombok = "1.18.46"
 packed = "1.1.4"
 mcbrawls = "3.+"
-javalin = "6.7.0"
+javalin = "7.2.2"
 
 [libraries]
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
