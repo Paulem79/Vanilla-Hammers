@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
@@ -16,6 +17,7 @@ import ovh.paulem.arcana.registry.RegistryKey;
 import ovh.paulem.arcana.registry.WriteableRegistry;
 
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -66,14 +68,14 @@ public class Hammer implements RegistryKey<Material> {
     @Getter
     private final Material recipeMaterial;
     @Getter
-    private final NamespacedKey hammerTranslationKey;
+    private final String hammerTranslationKey;
 
     public Hammer(Material material, int radius, int maxDamage, Material recipeMaterial, String hammerTranslationKey) {
         this.material = material;
         this.radius = radius;
         this.maxDamage = maxDamage;
         this.recipeMaterial = recipeMaterial;
-        this.hammerTranslationKey = VanillaHammers.key(hammerTranslationKey);
+        this.hammerTranslationKey = hammerTranslationKey;
     }
 
     public static Hammer register(Material material, int radius, int maxDamage, Material recipeMaterial, String hammerName) {
@@ -88,14 +90,16 @@ public class Hammer implements RegistryKey<Material> {
         return hammer;
     }
 
-    public ItemStack getStack() {
+    public ItemStack getStack(@Nullable Player player) {
         ItemStack stack = ItemStack.of(material);
         stack.setAmount(1);
 
         stack.setData(DataComponentTypes.MAX_DAMAGE, maxDamage);
         stack.setData(DataComponentTypes.ITEM_MODEL, getModelKey());
-        // TODO: Make it translatable
-        stack.setData(DataComponentTypes.ITEM_NAME, Component.translatable(getHammerTranslationKey().asString()));
+        @Nullable Component translated = LangsManager.translated("vanillahammers.gold", player != null ? player.locale() : Locale.US);
+        if(translated != null) {
+            stack.setData(DataComponentTypes.ITEM_NAME, translated);
+        }
 
         stack.editPersistentDataContainer(persistentDataContainer ->
                 persistentDataContainer.set(VanillaHammers.HAMMER_PDC_KEY, PersistentDataType.STRING, material.name())

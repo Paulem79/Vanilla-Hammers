@@ -16,6 +16,10 @@ import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.inventory.ItemStack;
 
 public class HammersCommand {
+    private HammersCommand() {
+        /* This utility class should not be instantiated */
+    }
+
 
     public static LiteralArgumentBuilder<CommandSourceStack> createCommand() {
         return Commands.literal("hammers")
@@ -46,6 +50,11 @@ public class HammersCommand {
         String type = ctx.getArgument("type", String.class);
         Material material = Material.matchMaterial(type.toUpperCase());
 
+        if(material == null) {
+            sender.sendMessage("Material not found");
+            return Command.SINGLE_SUCCESS;
+        }
+
         Hammer hammer = Hammer.HAMMERS.getOrNull(material);
 
         if(hammer == null) {
@@ -53,7 +62,7 @@ public class HammersCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        ItemStack hammerStack = hammer.getStack();
+        ItemStack hammerStack = hammer.getStack(player);
         player.getInventory().addItem(hammerStack);
 
         // If set by a different sender
