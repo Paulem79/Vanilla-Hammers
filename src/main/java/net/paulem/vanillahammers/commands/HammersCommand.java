@@ -62,7 +62,7 @@ public class HammersCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        ItemStack hammerStack = hammer.getStack(player);
+        ItemStack hammerStack = hammer.getStack();
         player.getInventory().addItem(hammerStack);
 
         // If set by a different sender

@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 
 public class BlockSelectTask implements Consumer<ScheduledTask> {
     public Map<Player, Location> selectedBlocks = new HashMap<>();
+    public Map<Player, BlockFace> selectedFace = new HashMap<>();
 
     @Override
     public void accept(ScheduledTask scheduledTask) {
@@ -34,6 +35,7 @@ public class BlockSelectTask implements Consumer<ScheduledTask> {
 
             if (block == null) {
                 selectedBlocks.remove(player);
+                selectedFace.remove(player);
 
                 new BlockSelectEvent(player, null, null).callEvent();
                 continue;
@@ -46,6 +48,7 @@ public class BlockSelectTask implements Consumer<ScheduledTask> {
                 double entityDistance = playerLocation.distanceSquared(entityInPath.getLocation());
                 if (entityDistance < blockDistance) {
                     selectedBlocks.remove(player);
+                    selectedFace.remove(player);
 
                     new BlockSelectEvent(player, null, null).callEvent();
                     continue;
@@ -53,11 +56,11 @@ public class BlockSelectTask implements Consumer<ScheduledTask> {
             }
 
             Location loc = block.getLocation();
+            BlockFace face = RaycastUtils.getTargetBlockFace(player);
 
             Location lastLoc = selectedBlocks.get(player);
-            if (lastLoc == null || lastLoc.distanceSquared(loc) >= 0.01) {
-                BlockFace face = RaycastUtils.getTargetBlockFace(player);
-
+            BlockFace lastFace = selectedFace.get(player);
+            if (lastLoc == null || lastLoc.distanceSquared(loc) >= 0.01 || lastFace != face) {
                 selectedBlocks.put(player, loc);
 
                 // New block selected

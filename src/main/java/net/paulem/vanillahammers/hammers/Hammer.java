@@ -1,23 +1,27 @@
 package net.paulem.vanillahammers.hammers;
 
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.registry.TypedKey;
+import io.papermc.paper.registry.set.RegistrySet;
+import io.papermc.paper.registry.tag.TagKey;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.paulem.vanillahammers.VanillaHammers;
-import net.paulem.vanillahammers.langs.LangsManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 import ovh.paulem.arcana.registry.RegistryKey;
 import ovh.paulem.arcana.registry.WriteableRegistry;
 
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -25,17 +29,35 @@ public class Hammer implements RegistryKey<Material> {
     // Could have been a FrozenRegistry, but I prefer Writeable here because in case someone wants to add another hammer on the fly, whatever about the resourcepack, then he's welcome !
     public static final WriteableRegistry<Hammer, Material> HAMMERS = new WriteableRegistry<>();
 
-    public static final Hammer WOOD = register(Material.WOODEN_PICKAXE, 1, 120, Material.OAK_PLANKS, "vanillahammers.wood");
-    public static final Hammer STONE = register(Material.STONE_PICKAXE, 1, 300, Material.STONE, "vanillahammers.stone");
-    public static final Hammer IRON = register(Material.IRON_PICKAXE, 1, 600, Material.IRON_INGOT, "vanillahammers.iron");
-    public static final Hammer GOLD = register(Material.GOLDEN_PICKAXE, 1, 64, Material.GOLD_INGOT, "vanillahammers.gold");
-    public static final Hammer DIAMOND = register(Material.DIAMOND_PICKAXE, 1, 4500, Material.DIAMOND, "vanillahammers.diamond");
-    public static final Hammer NETHERITE = register(Material.NETHERITE_PICKAXE, 2, 6000, Material.NETHERITE_INGOT, "vanillahammers.netherite");
+    public static final Hammer WOOD = register(Material.WOODEN_PICKAXE, 1, 120,
+            RecipeChoice.itemType(Registry.ITEM.getTag(TagKey.create(io.papermc.paper.registry.RegistryKey.ITEM, "planks"))), "vanillahammers.wood");
+    public static final Hammer STONE = register(Material.STONE_PICKAXE, 1, 300, new RecipeChoice.MaterialChoice(Material.STONE), "vanillahammers.stone");
+    public static final Hammer COPPER = register(Material.COPPER_PICKAXE, 1, 200, new RecipeChoice.MaterialChoice(Material.COPPER_INGOT), "vanillahammers.copper");
+    public static final Hammer IRON = register(Material.IRON_PICKAXE, 1, 600, new RecipeChoice.MaterialChoice(Material.IRON_INGOT), "vanillahammers.iron");
+    public static final Hammer GOLD = register(Material.GOLDEN_PICKAXE, 1, 64, new RecipeChoice.MaterialChoice(Material.GOLD_INGOT), "vanillahammers.gold");
+    public static final Hammer DIAMOND = register(Material.DIAMOND_PICKAXE, 1, 4500, new RecipeChoice.MaterialChoice(Material.DIAMOND), "vanillahammers.diamond");
+    public static final Hammer NETHERITE = register(Material.NETHERITE_PICKAXE, 2, 6000, new RecipeChoice.MaterialChoice(Material.NETHERITE_INGOT), "vanillahammers.netherite");
 
     public static void init() {
-        VanillaHammers.INSTANCE.getLogger().info("Initialized hammers !");
+        for (Material material : HAMMERS.keys()) {
+            Hammer hammer = HAMMERS.getOrThrow(material);
+            NamespacedKey key = VanillaHammers.key(material.name().replace("_PICKAXE", "").toLowerCase() + "_hammer");
 
-        LangsManager.init();
+            ItemStack item = hammer.getStack();
+
+            ShapedRecipe recipe = new ShapedRecipe(key, item);
+            recipe.shape(
+                    "AAA",
+                    " S ",
+                    " S "
+            );
+            recipe.setIngredient('A', hammer.getRecipeChoice());
+            recipe.setIngredient('S', Material.STICK);
+
+            Bukkit.getServer().addRecipe(recipe, true);
+        }
+
+        VanillaHammers.INSTANCE.getLogger().info("Initialized hammers and recipes !");
     }
 
     @Nullable
@@ -66,20 +88,20 @@ public class Hammer implements RegistryKey<Material> {
     @Getter
     private final int maxDamage;
     @Getter
-    private final Material recipeMaterial;
+    private final RecipeChoice recipeChoice;
     @Getter
     private final String hammerTranslationKey;
 
-    public Hammer(Material material, int radius, int maxDamage, Material recipeMaterial, String hammerTranslationKey) {
+    public Hammer(Material material, int radius, int maxDamage, RecipeChoice recipeChoice, String hammerTranslationKey) {
         this.material = material;
         this.radius = radius;
         this.maxDamage = maxDamage;
-        this.recipeMaterial = recipeMaterial;
+        this.recipeChoice = recipeChoice;
         this.hammerTranslationKey = hammerTranslationKey;
     }
 
-    public static Hammer register(Material material, int radius, int maxDamage, Material recipeMaterial, String hammerName) {
-        Hammer hammer = new Hammer(material, radius, maxDamage, recipeMaterial, hammerName);
+    public static Hammer register(Material material, int radius, int maxDamage, RecipeChoice recipeChoice, String hammerName) {
+        Hammer hammer = new Hammer(material, radius, maxDamage, recipeChoice, hammerName);
         boolean registered = HAMMERS.register(hammer);
 
         if(!registered) {
@@ -90,16 +112,13 @@ public class Hammer implements RegistryKey<Material> {
         return hammer;
     }
 
-    public ItemStack getStack(@Nullable Player player) {
+    public ItemStack getStack() {
         ItemStack stack = ItemStack.of(material);
         stack.setAmount(1);
 
         stack.setData(DataComponentTypes.MAX_DAMAGE, maxDamage);
         stack.setData(DataComponentTypes.ITEM_MODEL, getModelKey());
-        @Nullable Component translated = LangsManager.translated("vanillahammers.gold", player != null ? player.locale() : Locale.US);
-        if(translated != null) {
-            stack.setData(DataComponentTypes.ITEM_NAME, translated);
-        }
+        stack.setData(DataComponentTypes.ITEM_NAME, Component.translatable(getHammerTranslationKey()));
 
         stack.editPersistentDataContainer(persistentDataContainer ->
                 persistentDataContainer.set(VanillaHammers.HAMMER_PDC_KEY, PersistentDataType.STRING, material.name())
@@ -163,7 +182,7 @@ public class Hammer implements RegistryKey<Material> {
                 "material=" + material +
                 ", radius=" + radius +
                 ", maxDamage=" + maxDamage +
-                ", recipeMaterial=" + recipeMaterial +
+                ", recipeMaterial=" + recipeChoice +
                 '}';
     }
 }

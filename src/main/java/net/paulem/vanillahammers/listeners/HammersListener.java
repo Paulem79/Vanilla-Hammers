@@ -132,9 +132,8 @@ public class HammersListener implements Listener {
 
         Set<Block> blocksToOutline = hammer.getBlocksFor(block, face);
         for (Block b : blocksToOutline) {
-            if(block.getLocation().equals(b.getLocation())) {
-                if(!Utils.isCube(b)) continue;
-            }
+            if(block.getLocation().equals(b.getLocation()) && !Utils.isCube(b)) continue;
+
 
             BlockOutlineManager.addToOutlines(player, b, Utils.isBlockUnbreakable(player, b));
         }
