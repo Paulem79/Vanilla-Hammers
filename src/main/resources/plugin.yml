@@ -3,7 +3,7 @@ description: $description
 version: '${version}'
 
 main: net.paulem.vanillahammers.VanillaHammers
-api-version: '26.1.2'
+api-version: '1.21'
 load: POSTWORLD
 
 authors: [ Paulem ]

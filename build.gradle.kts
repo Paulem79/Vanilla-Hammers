@@ -3,7 +3,7 @@ plugins {
     kotlin("jvm") version "2.+"
     alias(libs.plugins.shadow)
     alias(libs.plugins.run.paper)
-    alias(libs.plugins.vanilla.gradle)
+    //alias(libs.plugins.vanilla.gradle)
 }
 
 repositories {
@@ -17,7 +17,7 @@ repositories {
         name = "radRepoPublic"
         url = uri("https://maven.rad.vg/public")
     }
-    maven("https://maven.paulem.net/releases/")
+    maven("https://maven.mcbrawls.net/releases/")
     maven("https://repo.viaversion.com")
     maven {
         url = uri("https://libraries.minecraft.net/")
@@ -47,9 +47,13 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 }
 
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(21)
+}
+
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25)
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
     }
 }
 
@@ -88,9 +92,9 @@ fun getProp(key: String, default: String): String {
     return prop.getOrElse(default)
 }
 
-minecraft {
+/*minecraft {
     injectRepositories(false)
-    version("26.1.2")
+    version(libs.versions.minecraft.get())
     runs {
         client {
             workingDirectory(file("run/client"))
@@ -103,4 +107,4 @@ minecraft {
             }
         }
     }
-}
+}*/

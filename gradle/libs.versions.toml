@@ -1,6 +1,6 @@
 [versions]
-paper-api = "26.1.2.build.+"
-minecraft = "26.1.2"
+paper-api = "1.21.11-R0.1-SNAPSHOT"
+minecraft = "1.21.11"
 shadow = "9.4.2"
 run-task = "3.0.2"
 vanilla-gradle = "0.3.2"
@@ -8,7 +8,7 @@ glowingentities = "1.4.11"
 arcana = "0.0.1"
 lombok = "1.18.46"
 packed = "1.1.4"
-mcbrawls = "3.1.5"
+mcbrawls = "3.2.0"
 javalin = "7.2.2"
 
 [libraries]
@@ -17,11 +17,11 @@ glowingentities = { module = "fr.skytasul:glowingentities", version.ref = "glowi
 arcana = { module = "ovh.paulem:Arcana", version.ref = "arcana" }
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 packed = { module = "net.radstevee.packed:packed-core", version.ref = "packed" }
-mcbrawls-spigot = { module = "net.paulem.inject:spigot", version.ref = "mcbrawls" }
-mcbrawls-api = { module = "net.paulem.inject:api", version.ref = "mcbrawls" }
-mcbrawls-http = { module = "net.paulem.inject:http", version.ref = "mcbrawls" }
-mcbrawls-jetty = { module = "net.paulem.inject:jetty", version.ref = "mcbrawls" }
-mcbrawls-javalin = { module = "net.paulem.inject:javalin", version.ref = "mcbrawls" }
+mcbrawls-spigot = { module = "net.mcbrawls.inject:spigot", version.ref = "mcbrawls" }
+mcbrawls-api = { module = "net.mcbrawls.inject:api", version.ref = "mcbrawls" }
+mcbrawls-http = { module = "net.mcbrawls.inject:http", version.ref = "mcbrawls" }
+mcbrawls-jetty = { module = "net.mcbrawls.inject:jetty", version.ref = "mcbrawls" }
+mcbrawls-javalin = { module = "net.mcbrawls.inject:javalin", version.ref = "mcbrawls" }
 javalin = { module = "io.javalin:javalin", version.ref = "javalin" }
 
 [plugins]
