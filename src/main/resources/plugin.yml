@@ -3,10 +3,10 @@ description: $description
 version: '${version}'
 
 main: net.paulem.vanillahammers.VanillaHammers
-api-version: '1.21'
+api-version: '1.21.11'
 load: POSTWORLD
 
 authors: [ Paulem ]
-website: paulem.net
+website: https://paulem.net
 
 folia-supported: true
