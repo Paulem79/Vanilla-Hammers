@@ -51,12 +51,10 @@ public class VanillaHammers extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new HammersListener(), INSTANCE);
         getServer().getPluginManager().registerEvents(new BlockMiningTask(), INSTANCE);
 
+
         packHosting = new ResourcePackHosting();
         getServer().getPluginManager().registerEvents(packHosting, this);
         packHosting.start();
-
-        GlobalRegionScheduler globalScheduler = getServer().getGlobalRegionScheduler();
-        globalScheduler.runAtFixedRate(INSTANCE, new BlockSelectTask(), 1L, 2L);
 
         getLogger().info("VanillaHammers has been enabled");
     }

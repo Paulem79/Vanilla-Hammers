@@ -11,91 +11,86 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BlockMiningTask implements Listener {
-    // Stores the player's UUID -> Their current mining info
     private final Map<UUID, MiningSession> activeMining = new ConcurrentHashMap<>();
-
-    // 5 ticks threshold equals exactly 250ms at standard 20 TPS.
-    // If a player doesn't damage the block for 5 ticks, they stopped mining.
     private static final int TICK_THRESHOLD = 5;
-
-    public BlockMiningTask() {
-        // Start the tracking task every 4 ticks (0.2 seconds)
-        startTrackingTask();
-    }
 
     @EventHandler
     public void onBlockDamage(BlockDamageEvent event) {
         Player player = event.getPlayer();
         Block block = event.getBlock();
         UUID uuid = player.getUniqueId();
-
-        MiningSession session = activeMining.get(uuid);
         int currentTick = Bukkit.getCurrentTick();
 
+        MiningSession session = activeMining.get(uuid);
+
         if (session == null || !session.getBlock().getLocation().equals(block.getLocation())) {
-            // The player starts mining a NEW block
-            activeMining.put(uuid, new MiningSession(block, currentTick));
+            // Cancel old task if mining a different block
+            if (session != null && session.getTask() != null) {
+                session.getTask().cancel();
+            }
+
+            MiningSession newSession = new MiningSession(block, currentTick);
+            activeMining.put(uuid, newSession);
+
+            // Start check loop on the player's region thread
+            ScheduledTask task = player.getScheduler().runAtFixedRate(
+                    VanillaHammers.INSTANCE,
+                    (scheduledTask) -> {
+                        int tickMaintenant = Bukkit.getCurrentTick();
+                        MiningSession currentSession = activeMining.get(uuid);
+
+                        if (currentSession == null) {
+                            scheduledTask.cancel();
+                            return;
+                        }
+
+                        // Player stopped mining
+                        if (tickMaintenant - currentSession.getLastDamageTick() > TICK_THRESHOLD) {
+                            if (player.isOnline()) {
+                                onPlayerStopMining(player, currentSession.getBlock());
+                            }
+                            activeMining.remove(uuid);
+                            scheduledTask.cancel();
+                        }
+                    },
+                    null,
+                    1L, 4L
+            );
+
+            newSession.setTask(task);
         } else {
-            // The player continues mining the SAME block, refresh the tick counter
+            // Still mining the same block, refresh tick
             session.updateTick(currentTick);
         }
     }
 
-    private void startTrackingTask() {
-        Bukkit.getServer().getGlobalRegionScheduler().runAtFixedRate(VanillaHammers.INSTANCE, (_) -> {
-            int currentTick = Bukkit.getCurrentTick();
-            Iterator<Map.Entry<UUID, MiningSession>> iterator = activeMining.entrySet().iterator();
-
-            while (iterator.hasNext()) {
-                Map.Entry<UUID, MiningSession> entry = iterator.next();
-                UUID uuid = entry.getKey();
-                MiningSession session = entry.getValue();
-
-                // If no interaction with the block for more than 5 ticks (250ms equivalent)
-                if (currentTick - session.getLastDamageTick() > TICK_THRESHOLD) {
-                    Player player = Bukkit.getPlayer(uuid);
-                    if (player != null && player.isOnline()) {
-                        // ====================================================
-                        // THE PLAYER STOPPED BREAKING THE BLOCK
-                        // ====================================================
-                        onPlayerStopMining(player, session.getBlock());
-                    }
-                    // Remove the player from the Map
-                    iterator.remove();
-                }
-            }
-        }, 1L, 4L); // Executes every 4 ticks
-    }
-
-    /**
-     * When player stop mining a block
-     */
     private void onPlayerStopMining(Player player, Block block) {
         BlockFace face = RaycastUtils.getTargetBlockFace(player);
-
         new PlayerStopDamageBlockEvent(player, block, face).callEvent();
     }
 
-    // Security: Clean up the Map if the player disconnects while mining
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        activeMining.remove(event.getPlayer().getUniqueId());
+        UUID uuid = event.getPlayer().getUniqueId();
+        MiningSession session = activeMining.remove(uuid);
+        if (session != null && session.getTask() != null) {
+            session.getTask().cancel();
+        }
     }
 
-    // Utility inner class to store the mining state
     private static class MiningSession {
         private final Block block;
         private int lastDamageTick;
+        private ScheduledTask task;
 
         public MiningSession(Block block, int lastDamageTick) {
-            // Usages d'un int car Bukkit.getCurrentTick() retourne un primitif int.
             this.block = block;
             this.lastDamageTick = lastDamageTick;
         }
@@ -103,5 +98,8 @@ public class BlockMiningTask implements Listener {
         public Block getBlock() { return block; }
         public int getLastDamageTick() { return lastDamageTick; }
         public void updateTick(int tick) { this.lastDamageTick = tick; }
+
+        public ScheduledTask getTask() { return task; }
+        public void setTask(ScheduledTask task) { this.task = task; }
     }
 }
