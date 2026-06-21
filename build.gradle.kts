@@ -8,6 +8,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://jitpack.io") }
     maven("https://repo.papermc.io/repository/maven-public/")
     maven {
         name = "paulemReleases"
@@ -28,6 +29,8 @@ dependencies {
     implementation(libs.glowingentities)
     implementation(libs.arcana)
     implementation(libs.packed)
+
+    implementation(libs.universalscheduler)
 
     implementation(libs.mcbrawls.spigot)
     implementation(libs.mcbrawls.api)
@@ -68,6 +71,7 @@ tasks {
 
         relocate("fr.skytasul.glowingentities", "net.paulem.vanillahammers.glowingentities")
         relocate("ovh.paulem.arcana", "net.paulem.vanillahammers.arcana")
+        relocate("com.github.Anon8281.universalScheduler", "net.paulem.vanillahammers.universalscheduler")
     }
 
     build {

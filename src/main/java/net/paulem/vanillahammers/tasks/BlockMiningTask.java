@@ -1,11 +1,11 @@
 package net.paulem.vanillahammers.tasks;
 
+import lombok.Getter;
 import net.paulem.vanillahammers.VanillaHammers;
 import net.paulem.vanillahammers.events.PlayerStopDamageBlockEvent;
 import net.paulem.vanillahammers.utils.RaycastUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -37,7 +37,7 @@ public class BlockMiningTask implements Listener {
         UUID uuid = player.getUniqueId();
 
         MiningSession session = activeMining.get(uuid);
-        int currentTick = Bukkit.getCurrentTick();
+        long currentTick = TickCounter.getTicks();
 
         if (session == null || !session.getBlock().getLocation().equals(block.getLocation())) {
             // The player starts mining a NEW block
@@ -49,8 +49,8 @@ public class BlockMiningTask implements Listener {
     }
 
     private void startTrackingTask() {
-        Bukkit.getServer().getGlobalRegionScheduler().runAtFixedRate(VanillaHammers.INSTANCE, (_) -> {
-            int currentTick = Bukkit.getCurrentTick();
+        VanillaHammers.getScheduler().runTaskTimer(() -> {
+            long currentTick = TickCounter.getTicks();
             Iterator<Map.Entry<UUID, MiningSession>> iterator = activeMining.entrySet().iterator();
 
             while (iterator.hasNext()) {
@@ -78,9 +78,20 @@ public class BlockMiningTask implements Listener {
      * When player stop mining a block
      */
     private void onPlayerStopMining(Player player, Block block) {
-        BlockFace face = RaycastUtils.getTargetBlockFace(player);
+        RaycastUtils.getTargetBlockFaceAsync(player).thenAccept(face -> {
+            new PlayerStopDamageBlockEvent(player, block, face).callEvent();
+        }).exceptionally(throwable -> {
+            Throwable realException = (throwable instanceof java.util.concurrent.CompletionException)
+                    ? throwable.getCause()
+                    : throwable;
 
-        new PlayerStopDamageBlockEvent(player, block, face).callEvent();
+            VanillaHammers.INSTANCE.getLogger().throwing(
+                    "BlockMiningTask",
+                    "onPlayerStopMining#thenAccept",
+                    realException
+            );
+            return null;
+        });
     }
 
     // Security: Clean up the Map if the player disconnects while mining
@@ -91,17 +102,16 @@ public class BlockMiningTask implements Listener {
 
     // Utility inner class to store the mining state
     private static class MiningSession {
+        @Getter
         private final Block block;
-        private int lastDamageTick;
+        @Getter
+        private long lastDamageTick;
 
-        public MiningSession(Block block, int lastDamageTick) {
-            // Usages d'un int car Bukkit.getCurrentTick() retourne un primitif int.
+        public MiningSession(Block block, long lastDamageTick) {
             this.block = block;
             this.lastDamageTick = lastDamageTick;
         }
 
-        public Block getBlock() { return block; }
-        public int getLastDamageTick() { return lastDamageTick; }
-        public void updateTick(int tick) { this.lastDamageTick = tick; }
+        public void updateTick(long tick) { this.lastDamageTick = tick; }
     }
 }

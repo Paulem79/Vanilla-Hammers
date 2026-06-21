@@ -5,6 +5,7 @@ shadow = "9.4.2"
 run-task = "3.0.2"
 vanilla-gradle = "0.3.2"
 glowingentities = "1.4.11"
+universalscheduler = "0.1.7"
 arcana = "0.0.1"
 lombok = "1.18.46"
 packed = "1.1.4"
@@ -17,6 +18,7 @@ glowingentities = { module = "fr.skytasul:glowingentities", version.ref = "glowi
 arcana = { module = "ovh.paulem:Arcana", version.ref = "arcana" }
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 packed = { module = "net.radstevee.packed:packed-core", version.ref = "packed" }
+universalscheduler = { module = "com.github.Anon8281:UniversalScheduler", version.ref = "universalscheduler" }
 mcbrawls-spigot = { module = "net.mcbrawls.inject:spigot", version.ref = "mcbrawls" }
 mcbrawls-api = { module = "net.mcbrawls.inject:api", version.ref = "mcbrawls" }
 mcbrawls-http = { module = "net.mcbrawls.inject:http", version.ref = "mcbrawls" }

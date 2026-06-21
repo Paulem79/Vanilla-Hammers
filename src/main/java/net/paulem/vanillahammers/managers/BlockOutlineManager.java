@@ -48,4 +48,8 @@ public class BlockOutlineManager {
         FAKE_OUTLINE_BLOCKS.put(player, block);
         Utils.makeOutline(player, block, unbreakable && VanillaHammers.CONFIG.specialColors ? ChatColor.DARK_RED : ChatColor.BLACK);
     }
+
+    public static List<Block> getOutlines(Player player) {
+        return FAKE_OUTLINE_BLOCKS.get(player);
+    }
 }
