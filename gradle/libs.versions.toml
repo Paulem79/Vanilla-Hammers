@@ -2,7 +2,7 @@
 paper-api = "1.21.11-R0.1-SNAPSHOT"
 minecraft = "1.21.11"
 shadow = "9.4.2"
-run-task = "3.0.2"
+run-task = "3.1.0"
 vanilla-gradle = "0.3.2"
 glowingentities = "1.4.11"
 universalscheduler = "0.1.7"
